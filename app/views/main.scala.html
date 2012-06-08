@@ -14,21 +14,26 @@
     <body>
 	    <div style="position:relative" class="gantt" id="GanttChartDIV"></div>
 	    <script language="javascript">
-		    var g = new JSGantt.GanttChart('g',document.getElementById('GanttChartDIV'), 'week');
+		    var g = new JSGantt.GanttChart('g',document.getElementById('GanttChartDIV'), 'day');
 		    g.setShowRes(1); // Show/Hide Responsible (0/1)
-		    g.setShowDur(1); // Show/Hide Duration (0/1)
+		    g.setShowDur(0); // Show/Hide Duration (0/1)
 		    g.setShowComp(0); // Show/Hide % Complete(0/1)
 		    g.setCaptionType('Resource');  // Set to Show Caption (None,Caption,Resource,Duration,Complete)
 		    g.setShowStartDate(1); // Show/Hide Start Date(0/1)
 		    g.setShowEndDate(1); // Show/Hide End Date(0/1)
 		    g.setDateInputFormat('mm/dd/yyyy')  // Set format of input dates ('mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy-mm-dd')
-		    g.setDateDisplayFormat('mm/dd/yyyy') // Set format to display dates ('mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy-mm-dd')
+		    g.setDateDisplayFormat('yyyy-mm-dd') // Set format to display dates ('mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy-mm-dd')
 		    g.setFormatArr("day","week","month","quarter") // Set format options (up to 4 : "minute","hour","day","week","month","quarter")
 		 	
 		    JSGantt.parseXML("ganttData/@projectId",g);
 		    
 		    g.Draw();	
 		    g.DrawDependencies();
+		    
+		    $(window).resize(function() {
+		    	$("div.scroll2").css('width', $(window).width() - $("div.scroll").width() - 20);
+		    });
+		    $(window).resize();
 		</script>
     </body>
 </html>

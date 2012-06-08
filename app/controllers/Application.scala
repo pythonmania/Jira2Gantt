@@ -9,7 +9,13 @@ import java.net.URLEncoder
 
 object Application extends Controller {
 
-  def index(projectId: String) = Action {
+  val jiraQuery = "project = %s AND component = plan ORDER BY plannedStart"
+
+  def index = Action {
+    Redirect(routes.Application.gantt("UPDUSERREFACTOR"))
+  }
+
+  def gantt(projectId: String) = Action {
     Ok(views.html.main(projectId))
   }
 
@@ -26,7 +32,7 @@ object Application extends Controller {
 
     // fetch issues in xml
     val requestURL = "http://issue.daumcorp.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=" +
-      URLEncoder.encode("project = %s".format(projectId), "UTF-8") +
+      URLEncoder.encode(jiraQuery.format(projectId), "UTF-8") +
       "&tempMax=1000" +
       "&os_username=" + username +
       "&os_password=" + password
@@ -57,8 +63,11 @@ object Application extends Controller {
           case _ => "808080" // gray
         }
 
+        // if this issue has subtasks, mark as parent group.
+        val isParentGroup = if ((item \ "subtasks" \ "subtask").size > 0) 1 else 0
+
         <task>
-          <pID>{ item \ "project" \ "@id" text }</pID>
+          <pID>{ item \ "key" \ "@id" text }</pID>
           <pName>{ name }</pName>
           <pStart>{ plannedStart }</pStart>
           <pEnd>{ plannedEnd }</pEnd>
@@ -67,11 +76,10 @@ object Application extends Controller {
           <pMile>0</pMile>
           <pRes>{ item \ "assignee" text }</pRes>
           <pComp>0</pComp>
-          <pGroup></pGroup>
-          <pParent>0</pParent>
+          <pGroup>{ isParentGroup }</pGroup>
+          <pParent>{ item \ "parent" \ "@id" text }</pParent>
           <pOpen/>
           <pDepend/>
-          <pCaption>{ name }</pCaption>
         </task>
       }
     Ok(<project>{ gantt }</project>).as(XML)

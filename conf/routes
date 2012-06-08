@@ -3,7 +3,9 @@
 # ~~~~
 
 # Home page
-GET     /							controllers.Application.index(projectId: String ?= "UPDUSERREFACTOR")
+GET     /							controllers.Application.index()
+
+GET     /:projectId					controllers.Application.gantt(projectId: String)
 
 GET		/ganttData/:projectId		controllers.Application.ganttData(projectId: String)
 
