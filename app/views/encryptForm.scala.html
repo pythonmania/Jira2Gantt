@@ -1,0 +1,17 @@
+@(passwordSeed: String)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>crypt</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    </head>
+    <body>
+	    <form action="encrypt" method="POST">
+	    	passwordSeed : <input type="text" name="passwordSeed" size="80" value="@passwordSeed" /><br/>
+	    	password : <input type="password" name="password" size="80"/><br/>
+	    	<input type="submit" /><br/>
+	    </form>
+    </body>
+</html>

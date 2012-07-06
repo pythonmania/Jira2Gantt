@@ -4,15 +4,29 @@ import play.api._
 import play.api.mvc._
 import play.api.Play.current
 import scala.io.Source
-import models.DateUtil
 import java.net.URLEncoder
+import models._
 
 object Application extends Controller {
-
   val jiraQuery = "project = %s AND component = plan ORDER BY plannedStart"
+  val username = Play.application.configuration.getString("jira.username").get
+  val passwordCrypt = Play.application.configuration.getString("jira.password.crypt").get
+  val passwordSeed = Play.application.configuration.getString("jira.password.seed").get
 
   def index = Action {
     Redirect(routes.Application.gantt("UPDUSERREFACTOR"))
+  }
+
+  def encryptForm() = Action {
+    val passwordSeed = Play.application.configuration.getString("jira.password.seed").get
+    Ok(views.html.encryptForm(passwordSeed))
+  }
+
+  def encrypt() = Action(parse.urlFormEncoded) { implicit request =>
+    val passwordSeed = request.body("passwordSeed").head
+    val password = request.body("password").head
+
+    Ok(views.html.encrypt(CryptUtil.encrypt(passwordSeed, password)))
   }
 
   def gantt(projectId: String) = Action {
@@ -20,15 +34,7 @@ object Application extends Controller {
   }
 
   def ganttData(projectId: String) = Action {
-    val username = Play.application.configuration.getString("jira.username").get
-    val passwordCrypt = Play.application.configuration.getString("jira.password.crypt").get
-    val passwordSeed = Play.application.configuration.getString("jira.password.seed").get
-
-    import org.jasypt.util.text._
-    val textEncryptor: BasicTextEncryptor = new BasicTextEncryptor
-    textEncryptor.setPassword(passwordSeed)
-
-    val password = textEncryptor.decrypt(passwordCrypt)
+    val password = CryptUtil.decrypt(passwordSeed, passwordCrypt)
 
     // fetch issues in xml
     val requestURL = "http://issue.daumcorp.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=" +
